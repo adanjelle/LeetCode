@@ -1,11 +1,633 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>from scratch · real walk & hug</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1b262c 0%, #2c3a47 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            padding: 15px;
+        }
+
+        .studio {
+            width: 1300px;
+            max-width: 100%;
+            background: rgba(22, 28, 36, 0.8);
+            backdrop-filter: blur(12px) saturate(200%);
+            border-radius: 70px;
+            padding: 30px 25px 35px;
+            box-shadow: 0 40px 70px -10px #000000e0, 0 0 0 3px #3e4a5b inset, 0 0 0 7px #95a9c733 inset;
+            border: 1px solid #baccdd40;
+        }
+
+        .tagline {
+            text-align: center;
+            font-weight: 350;
+            color: #edf2f9;
+            text-shadow: 0 3px 14px #8fb1ff;
+            font-size: 2.1rem;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+        .tagline span {
+            background: #141c26cc;
+            padding: 8px 45px;
+            border-radius: 90px;
+            backdrop-filter: blur(12px);
+            border: 1.5px solid #9eb5d6;
+            font-weight: 330;
+        }
+
+        /* ---------- MAIN STAGE ---------- */
+        .stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #24303b;
+            background-image: radial-gradient(circle at 30% 40%, #3e5263, #15222e);
+            border-radius: 60px 60px 40px 40px;
+            overflow: hidden;
+            box-shadow: inset 0 -8px 20px #00000080, 0 20px 35px -8px #020617;
+            isolation: isolate;
+        }
+
+        /* ground + depth */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 23%;
+            background: #2d4633;
+            background: linear-gradient(0deg, #1e5f2e, #3d754a);
+            border-radius: 70% 70% 0 0 / 40px 40px 0 0;
+            box-shadow: inset 0 12px 18px -8px #0a2b0a;
+            z-index: 8;
+        }
+        .ground::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: radial-gradient(ellipse at 30% 0%, #ebf7d0, transparent 70%);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* soft shadow under characters */
+        .walk-shadow {
+            position: absolute;
+            bottom: 21%;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: radial-gradient(ellipse at 50% 0%, #00000070, transparent 70%);
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        /* —————— PERSON 1 (MAN) built entirely with CSS —————— */
+        .man {
+            position: absolute;
+            bottom: 21%;
+            left: -200px; /* start off-stage */
+            width: 150px;
+            height: 280px;
+            z-index: 50;
+            filter: drop-shadow(8px 18px 12px #0b140e);
+            animation: manWalk 4.8s forwards cubic-bezier(0.18, 0.88, 0.3, 1.08);
+        }
+
+        /* man parts */
+        .man-head {
+            position: absolute;
+            top: 0;
+            left: 45px;
+            width: 54px;
+            height: 54px;
+            background: #f2d3b3;
+            border-radius: 50%;
+            box-shadow: 0 6px 0 #b38b6b, 0 10px 18px #2e2b1e80;
+        }
+        .man-hair {
+            position: absolute;
+            top: -12px;
+            left: 38px;
+            width: 70px;
+            height: 38px;
+            background: #2f2216;
+            border-radius: 50% 50% 30% 30%;
+            clip-path: polygon(15% 0, 85% 0, 75% 100%, 25% 100%);
+            z-index: -1;
+        }
+        .man-eye-left, .man-eye-right {
+            position: absolute;
+            width: 8px;
+            height: 10px;
+            background: #1d1610;
+            border-radius: 50%;
+            top: 20px;
+        }
+        .man-eye-left { left: 12px; }
+        .man-eye-right { left: 32px; }
+        .man-nose {
+            position: absolute;
+            width: 6px;
+            height: 10px;
+            background: #dbaa88;
+            left: 24px;
+            top: 28px;
+            border-radius: 30%;
+        }
+        .man-smile {
+            position: absolute;
+            width: 24px;
+            height: 12px;
+            border-bottom: 4px solid #ad5a5a;
+            border-radius: 0 0 20px 20px;
+            left: 16px;
+            top: 34px;
+        }
+        .man-body {
+            position: absolute;
+            top: 52px;
+            left: 44px;
+            width: 56px;
+            height: 100px;
+            background: #1f4f6e;
+            background: linear-gradient(135deg, #317a9e, #134b62);
+            border-radius: 40px 40px 20px 20px;
+            transform: rotate(0.5deg);
+            box-shadow: 4px 16px 0 #073344;
+        }
+        /* arms */
+        .man-arm-left {
+            position: absolute;
+            top: 65px;
+            left: 26px;
+            width: 38px;
+            height: 22px;
+            background: #f2d3b3;
+            border-radius: 40% 20% 60% 20%;
+            transform: rotate(-30deg);
+            transform-origin: right center;
+            box-shadow: -4px 12px 0 #b38b6b;
+            z-index: 55;
+            animation: manLeftArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1);
+        }
+        .man-arm-right {
+            position: absolute;
+            top: 68px;
+            left: 74px;
+            width: 46px;
+            height: 24px;
+            background: #f2d3b3;
+            border-radius: 20% 40% 20% 80%;
+            transform: rotate(10deg);
+            transform-origin: left center;
+            box-shadow: 6px 12px 0 #b38b6b;
+            z-index: 45;
+            animation: manRightArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1);
+        }
+        /* legs */
+        .man-leg-left, .man-leg-right {
+            position: absolute;
+            top: 146px;
+            width: 24px;
+            height: 52px;
+            background: #1f3c4a;
+            border-radius: 20px;
+            box-shadow: 2px 12px 0 #06212b;
+        }
+        .man-leg-left { left: 46px; }
+        .man-leg-right { left: 74px; }
+
+        /* —————— PERSON 2 (WOMAN) fully built with CSS —————— */
+        .woman {
+            position: absolute;
+            bottom: 21%;
+            right: -200px; /* start off-stage right */
+            width: 140px;
+            height: 270px;
+            z-index: 45;
+            filter: drop-shadow(8px 18px 12px #261d14);
+            animation: womanWalk 4.8s forwards cubic-bezier(0.18, 0.88, 0.3, 1.08);
+        }
+        .woman-head {
+            position: absolute;
+            top: 0;
+            left: 40px;
+            width: 52px;
+            height: 52px;
+            background: #f7d9bc;
+            border-radius: 50%;
+            box-shadow: 0 6px 0 #b38b6b, 0 10px 18px #482e1b80;
+        }
+        .woman-hair {
+            position: absolute;
+            top: -12px;
+            left: 32px;
+            width: 70px;
+            height: 44px;
+            background: #663d26;
+            border-radius: 50% 50% 30% 30%;
+            clip-path: polygon(10% 0, 90% 0, 85% 70%, 15% 70%);
+            z-index: -1;
+        }
+        .woman-eye-left, .woman-eye-right {
+            position: absolute;
+            width: 8px;
+            height: 10px;
+            background: #1e150f;
+            border-radius: 50%;
+            top: 18px;
+        }
+        .woman-eye-left { left: 12px; }
+        .woman-eye-right { left: 32px; }
+        .woman-smile {
+            position: absolute;
+            width: 22px;
+            height: 11px;
+            border-bottom: 4px solid #b45d5d;
+            border-radius: 0 0 20px 20px;
+            left: 15px;
+            top: 32px;
+        }
+        .woman-body {
+            position: absolute;
+            top: 50px;
+            left: 40px;
+            width: 52px;
+            height: 94px;
+            background: #b4566c;
+            background: linear-gradient(145deg, #dc7f99, #b14260);
+            border-radius: 40px 40px 20px 20px;
+            transform: rotate(-0.5deg);
+            box-shadow: -3px 14px 0 #752d49;
+        }
+        .woman-arm-left {
+            position: absolute;
+            top: 62px;
+            left: 22px;
+            width: 36px;
+            height: 22px;
+            background: #f7d9bc;
+            border-radius: 40% 20% 60% 20%;
+            transform: rotate(25deg);
+            transform-origin: right center;
+            box-shadow: -5px 10px 0 #b38b6b;
+            z-index: 40;
+            animation: womanLeftArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1);
+        }
+        .woman-arm-right {
+            position: absolute;
+            top: 62px;
+            left: 68px;
+            width: 42px;
+            height: 22px;
+            background: #f7d9bc;
+            border-radius: 20% 40% 20% 80%;
+            transform: rotate(-20deg);
+            transform-origin: left center;
+            box-shadow: 5px 12px 0 #b38b6b;
+            z-index: 55;
+            animation: womanRightArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1);
+        }
+        .woman-leg-left, .woman-leg-right {
+            position: absolute;
+            top: 138px;
+            width: 22px;
+            height: 48px;
+            background: #3f2e44;
+            border-radius: 20px;
+            box-shadow: 0 12px 0 #271d28;
+        }
+        .woman-leg-left { left: 42px; }
+        .woman-leg-right { left: 68px; }
+
+        /* --- WALK ANIMATIONS (approach & hug) --- */
+        @keyframes manWalk {
+            0% { left: -200px; }
+            40% { left: 30%; }
+            65% { left: 33%; }   /* close to woman */
+            100% { left: 33%; }   /* final hug position */
+        }
+        @keyframes womanWalk {
+            0% { right: -200px; }
+            40% { right: 28%; }
+            65% { right: 31%; }   /* move into embrace */
+            100% { right: 31%; }
+        }
+
+        /* Arm animations – wrap into hug */
+        @keyframes manLeftArm {
+            0% { transform: rotate(-30deg) translateX(0); }
+            45% { transform: rotate(-15deg) translateX(10px); }
+            70% { transform: rotate(20deg) translateX(28px) translateY(-8px); }
+            100% { transform: rotate(20deg) translateX(28px) translateY(-8px); }
+        }
+        @keyframes manRightArm {
+            0% { transform: rotate(10deg) translateX(0); }
+            45% { transform: rotate(-5deg) translateX(-6px); }
+            70% { transform: rotate(-35deg) translateX(-38px) translateY(-10px); }
+            100% { transform: rotate(-35deg) translateX(-38px) translateY(-10px); }
+        }
+        @keyframes womanLeftArm {
+            0% { transform: rotate(25deg) translateX(0); }
+            45% { transform: rotate(5deg) translateX(-8px) translateY(-2px); }
+            70% { transform: rotate(-20deg) translateX(-30px) translateY(0); }
+            100% { transform: rotate(-20deg) translateX(-30px) translateY(0); }
+        }
+        @keyframes womanRightArm {
+            0% { transform: rotate(-20deg) translateX(0); }
+            45% { transform: rotate(5deg) translateX(10px) translateY(-3px); }
+            70% { transform: rotate(30deg) translateX(36px) translateY(-4px); }
+            100% { transform: rotate(30deg) translateX(36px) translateY(-4px); }
+        }
+
+        /* subtle floating after hug (gentle) */
+        .man, .woman {
+            animation-fill-mode: forwards;
+        }
+
+        /* --- floating hearts & sparkles (js injected) --- */
+        .heart-up {
+            position: absolute;
+            color: #ff77aa;
+            font-size: 38px;
+            filter: drop-shadow(0 0 24px #ff66aa) drop-shadow(0 0 60px #ffb3d9);
+            z-index: 200;
+            pointer-events: none;
+            animation: levitate 3.2s forwards ease-out;
+        }
+
+        @keyframes levitate {
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-260px) scale(1.9); opacity: 0; }
+        }
+
+        .spark {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff2b5;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #fdcf7c, 0 0 80px #ffad80;
+            z-index: 190;
+            pointer-events: none;
+            animation: glitter 1.8s infinite alternate;
+        }
+
+        @keyframes glitter {
+            0% { opacity: 0.2; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(2.2); }
+        }
+
+        /* controls */
+        .action-strip {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 32px 0 10px;
+            flex-wrap: wrap;
+        }
+
+        .pro-btn {
+            background: #1d2938cc;
+            backdrop-filter: blur(14px);
+            border: 2px solid #b7cde0;
+            padding: 16px 50px;
+            border-radius: 100px;
+            font-size: 1.5rem;
+            font-weight: 450;
+            color: #f0f6ff;
+            box-shadow: 0 22px 32px -12px #03050a, 0 0 0 3px #ffffff26 inset;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .pro-btn:hover {
+            background: #2f4057;
+            border-color: #e2ecff;
+            transform: scale(1.02);
+        }
+        .pro-btn:active {
+            transform: scale(0.97);
+            background: #121d2c;
+        }
+        .pro-btn i { font-size: 2.4rem; }
+
+        .foot-note {
+            text-align: center;
+            color: #bdd1ec;
+            background: #0b1825b0;
+            width: fit-content;
+            margin: 18px auto 0;
+            padding: 8px 46px;
+            border-radius: 90px;
+            backdrop-filter: blur(10px);
+            font-size: 1.1rem;
+            border: 1px solid #a7bedb;
+        }
+    </style>
 </head>
 <body>
-<script src="index.js"></script>
+    <div class="studio">
+        <div class="tagline"><span>🤝  structured people · confident walk to hug  🤝</span></div>
+
+        <div class="stage" id="mainStage">
+            <div class="ground"></div>
+            <div class="walk-shadow"></div>
+
+            <!-- CSS-built woman (from top to bottom) -->
+            <div class="woman" id="womanFigure">
+                <div class="woman-hair"></div>
+                <div class="woman-head">
+                    <div class="woman-eye-left"></div>
+                    <div class="woman-eye-right"></div>
+                    <div class="woman-smile"></div>
+                </div>
+                <div class="woman-body"></div>
+                <div class="woman-arm-left" id="womanArmL"></div>
+                <div class="woman-arm-right" id="womanArmR"></div>
+                <div class="woman-leg-left"></div>
+                <div class="woman-leg-right"></div>
+            </div>
+
+            <!-- CSS-built man (from top to bottom) -->
+            <div class="man" id="manFigure">
+                <div class="man-hair"></div>
+                <div class="man-head">
+                    <div class="man-eye-left"></div>
+                    <div class="man-eye-right"></div>
+                    <div class="man-nose"></div>
+                    <div class="man-smile"></div>
+                </div>
+                <div class="man-body"></div>
+                <div class="man-arm-left" id="manArmL"></div>
+                <div class="man-arm-right" id="manArmR"></div>
+                <div class="man-leg-left"></div>
+                <div class="man-leg-right"></div>
+            </div>
+
+            <!-- fx container -->
+            <div id="fxContainer" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 300;"></div>
+        </div>
+
+        <div class="action-strip">
+            <button class="pro-btn" id="replayBtn"><i>🔄</i> replay walk & hug</button>
+            <button class="pro-btn" id="loveBtn"><i>💞</i> shower warmth</button>
+        </div>
+        <div class="foot-note">two people · built from scratch · real hug</div>
+    </div>
+
+    <script>
+        (function() {
+            const stage = document.getElementById('mainStage');
+            const fx = document.getElementById('fxContainer');
+            const man = document.getElementById('manFigure');
+            const woman = document.getElementById('womanFigure');
+            const manArmL = document.getElementById('manArmL');
+            const manArmR = document.getElementById('manArmR');
+            const womanArmL = document.getElementById('womanArmL');
+            const womanArmR = document.getElementById('womanArmR');
+            const replay = document.getElementById('replayBtn');
+            const love = document.getElementById('loveBtn');
+
+            // ---- effects ----
+            function createHeart(x, y, big = false) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-up';
+                heart.innerHTML = big ? '💗' : (Math.random() > 0.3 ? '❤️' : '💖');
+                heart.style.left = x + 'px';
+                heart.style.top = y + 'px';
+                heart.style.fontSize = big ? '70px' : (30 + Math.random() * 34) + 'px';
+                fx.appendChild(heart);
+                setTimeout(() => heart.remove(), 3200);
+            }
+
+            function createSpark(x, y) {
+                const sp = document.createElement('div');
+                sp.className = 'spark';
+                sp.style.left = x + 'px';
+                sp.style.top = y + 'px';
+                sp.style.background = `hsl(${30 + Math.random() * 70}, 100%, 70%)`;
+                fx.appendChild(sp);
+                setTimeout(() => sp.remove(), 1600);
+            }
+
+            function burstAroundMeeting(type = 'both', intensity = 1.3) {
+                const rect = stage.getBoundingClientRect();
+                if (!rect.width) return;
+                const midX = rect.width * 0.47 + (Math.random() * 20 - 10);
+                const midY = rect.height * 0.45;
+                const cnt = Math.floor(20 * intensity);
+
+                for (let i = 0; i < cnt; i++) {
+                    const offX = (Math.random() - 0.5) * 260;
+                    const offY = (Math.random() - 0.5) * 200 - 20;
+                    const x = midX + offX;
+                    const y = midY + offY;
+                    setTimeout(() => {
+                        if (type === 'hearts' || type === 'both') {
+                            if (Math.random() > 0.35) createHeart(x, y);
+                        }
+                        if (type === 'sparks' || type === 'both') {
+                            if (Math.random() > 0.45) createSpark(x, y);
+                        }
+                    }, i * 28);
+                }
+            }
+
+            // full replay: reset animations
+            function replayFull() {
+                // remove
+                man.style.animation = 'none';
+                woman.style.animation = 'none';
+                manArmL.style.animation = 'none';
+                manArmR.style.animation = 'none';
+                womanArmL.style.animation = 'none';
+                womanArmR.style.animation = 'none';
+
+                // force reflow
+                void man.offsetWidth;
+                void woman.offsetHeight;
+
+                // restore
+                man.style.animation = 'manWalk 4.8s forwards cubic-bezier(0.18, 0.88, 0.3, 1.08)';
+                woman.style.animation = 'womanWalk 4.8s forwards cubic-bezier(0.18, 0.88, 0.3, 1.08)';
+                manArmL.style.animation = 'manLeftArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1)';
+                manArmR.style.animation = 'manRightArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1)';
+                womanArmL.style.animation = 'womanLeftArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1)';
+                womanArmR.style.animation = 'womanRightArm 4.8s forwards cubic-bezier(0.22, 0.85, 0.3, 1.1)';
+
+                // effect bursts
+                setTimeout(() => burstAroundMeeting('sparks', 1.1), 1700);
+                setTimeout(() => burstAroundMeeting('both', 1.5), 2900);
+                setTimeout(() => {
+                    const r = stage.getBoundingClientRect();
+                    if (r) createHeart(r.width * 0.47, r.height * 0.4, true);
+                }, 3800);
+            }
+
+            // love shower
+            function showerWarmth() {
+                burstAroundMeeting('hearts', 2.3);
+                setTimeout(() => burstAroundMeeting('sparks', 2.0), 140);
+                setTimeout(() => {
+                    const rect = stage.getBoundingClientRect();
+                    for (let i = 0; i < 10; i++) {
+                        const randX = 40 + Math.random() * (rect.width - 120);
+                        const randY = 30 + Math.random() * (rect.height - 150);
+                        createHeart(randX, randY, i % 2 === 0);
+                    }
+                }, 180);
+            }
+
+            // listeners
+            replay.addEventListener('click', (e) => {
+                e.preventDefault();
+                replayFull();
+            });
+            love.addEventListener('click', (e) => {
+                e.preventDefault();
+                showerWarmth();
+            });
+
+            // initial sparkles as they meet
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    burstAroundMeeting('sparks', 0.9);
+                }, 2500);
+                setTimeout(() => {
+                    const rect = stage.getBoundingClientRect();
+                    if (rect) createHeart(rect.width * 0.47, rect.height * 0.4, true);
+                }, 4000);
+            });
+
+            // optional stage click — tiny spark
+            stage.addEventListener('click', (e) => {
+                const rect = stage.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                if (x>0 && y>0) createSpark(x, y);
+            });
+        })();
+    </script>
 </body>
 </html>
